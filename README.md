@@ -62,6 +62,7 @@ pip install numpy            # the only hard dependency
 python demo_problem.py       # the question, the traps, and the ground truth
 python demo_retrieval.py     # vector RAG vs the hybrid, with the k-sweep
 python text_to_sql.py        # the two plausible-but-wrong SQL guesses
+python eval_suite.py         # all four question shapes: where each method wins
 
 pip install model2vec        # optional: confirm the failure under a real dense model
 python real_model_check.py
@@ -80,6 +81,7 @@ mirrors the shape of Dynamics 365 / Dataverse sales records.
 | `demo_problem.py` | the question and the ground-truth answer via correct joins |
 | `retrieval.py` | the embedder, the vector-RAG pipeline, the hybrid, and the metric |
 | `demo_retrieval.py` | the head-to-head, including the "just raise k" sweep |
+| `eval_suite.py` | all four question shapes, where each method wins and loses |
 | `text_to_sql.py` | two plausible text-to-SQL guesses, run for real |
 | `real_model_check.py` | the same failure under a production dense model |
 | `tests/` | proofs of every claim above |

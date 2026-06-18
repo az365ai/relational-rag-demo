@@ -74,6 +74,35 @@ class TextToSqlFailureTests(unittest.TestCase):
             self.assertNotEqual(got, GOLD_TOTAL)
 
 
+class QuestionShapeTests(unittest.TestCase):
+    """Vector RAG wins the retrieval-shaped questions and loses the relational
+    ones. This is the fair, multi-shape claim the article rests on."""
+
+    def setUp(self):
+        self.conn = build_crm()
+
+    def _top_ids(self, query, k):
+        idx = VectorIndex(as_documents(self.conn))
+        return [d for d, _, _ in idx.search(query, k=k)]
+
+    def test_vector_rag_wins_lookup(self):
+        # The answer is one chunk; similarity lands it.
+        self.assertIn("contact:5", self._top_ids("What is Priya Nair's job title?", k=3))
+
+    def test_vector_rag_wins_semantic_find(self):
+        # The cue is in a free-text activity note, similarity's home turf.
+        self.assertIn("activity:3",
+                      self._top_ids("Which Acme deal involves a request about EU support?", k=5))
+
+    def test_vector_rag_loses_aggregation_at_every_k(self):
+        # Already proven in VectorRagFailureTests; asserted here as the relational half
+        # of the shape matrix for symmetry.
+        idx = VectorIndex(as_documents(self.conn))
+        hits = idx.search(QUESTION, k=len(idx.ids))
+        opp_order = [int(d.split(":")[1]) for d, _, _ in hits if d.startswith("opp:")]
+        self.assertFalse(any(set(opp_order[:n]) == GOLD for n in range(1, len(opp_order) + 1)))
+
+
 class DeterminismTests(unittest.TestCase):
     def test_embedding_ranking_is_stable_across_runs(self):
         # Built-in hash() is salted per process; we use a stable hash so the demo
